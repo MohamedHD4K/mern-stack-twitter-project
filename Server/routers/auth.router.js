@@ -1,12 +1,15 @@
 import express from 'express'
-import { login, singin, logout } from '../controllers/auth.controller.js'
+import { login, singin, logout, getMe } from '../controllers/auth.controller.js'
+import { protectRoute } from '../middleware/protectRoute.js'
 
-const router =  express.Router()
+const router = express.Router()
 
-router.get("/singin" ,  singin)
+router.get("/me", protectRoute, getMe)
 
-router.get("/login" ,  login)
+router.post("/singin", singin)
 
-router.get("/logout" ,  logout)
+router.post("/login", login)
+
+router.post("/logout", logout)
 
 export default router
