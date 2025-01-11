@@ -2,7 +2,7 @@ import User from "../models/auth.model.js";
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 import bcryptjs from "bcryptjs";
 
-const singin = async (req, res) => {
+export const singin = async (req, res) => {
   try {
     const { username, fullName, password, email } = req.body;
 
@@ -62,7 +62,7 @@ const singin = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { username, password } = req.body
 
@@ -92,7 +92,7 @@ const login = async (req, res) => {
   }
 };
 
-const logout = async (req, res) => {
+export const logout = async (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 })
     res.status(200).json({ message: "Logged out successfully" })
@@ -102,7 +102,7 @@ const logout = async (req, res) => {
   }
 };
 
-const getMe = async (req, res) => {
+export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select("-password")
     res.status(200).json(user)
@@ -112,4 +112,3 @@ const getMe = async (req, res) => {
   }
 }
 
-export { getMe, login, singin, logout };
