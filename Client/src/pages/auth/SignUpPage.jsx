@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-
 import XSvg from "../../components/svgs/XSvg.jsx";
-
+import { toast } from "react-hot-toast";
 import { MdOutlineMail } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
+import { useMutation } from "@tanstack/react-query";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -18,18 +18,42 @@ const SignUpPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+    mutate(formData);
   };
 
   const handleInputChange = ({ target }) => {
     setFormData({ ...formData, [target.name]: target.value });
   };
 
-  useEffect(() => {
-    document.title = "X Clone /SignUp";
-  }, []);
+  const { error, isError, isPending, mutate } = useMutation({
+    mutationFn: async ({ email, username, password, fullName }) => {
+      try {
+        const res = await fetch("http://localhost:3000/api/auth/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, username, password, fullName }),
+        });
 
-  const isError = false;
+        if (!res.ok) throw new Error("Something went wrong");
+
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        toast.success(data.username + " created");
+        return data;
+      } catch (error) {
+        console.error(error);
+        toast.error(error.message);
+        throw error;
+      }
+    },
+  });
+
+  useEffect(() => {
+    document.title = "X Clone \\ SignUp";
+  }, []);
 
   return (
     <div className="max-w-screen-xl mx-auto flex h-screen px-10">
@@ -90,9 +114,9 @@ const SignUpPage = () => {
             />
           </label>
           <button className="btn rounded-full btn-primary text-white">
-            Sign up
+            {isPending ? "Loading..." : "Sign up"}
           </button>
-          {isError && <p className="text-red-500">Something went wrong</p>}
+          {isError && <p className="text-red-500">{error.message}</p>}
         </form>
         <div className="flex flex-col lg:w-2/3 gap-2 mt-4">
           <p className="text-white text-lg">Already have an account?</p>

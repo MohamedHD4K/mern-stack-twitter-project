@@ -89,13 +89,13 @@ const NotificationPage = () => {
   };
 
   useEffect(() => {
-    document.title = "X Clone /Notifications";
+    document.title = "X Clone \\ Notifications"
   }, []);
 
   return (
     <>
       <div className="flex-[4_4_0] border-r border-gray-700  min-h-screen">
-        <div className="flex justify-between items-center p-4 border-b border-gray-700">
+        <div className="flex justify-between sticky top-0 z-20 backdrop-blur-lg  items-center p-4 border-b border-gray-700">
           <p className="font-bold">Notifications</p>
           <div className="dropdown ">
             <div tabIndex={0} role="button" className="m-1">
@@ -103,7 +103,8 @@ const NotificationPage = () => {
             </div>
             <ul
               tabIndex={0}
-              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+              style={{boxShadow:"0 0 10px #999999a9"}}
+              className="dropdown-content border rounded border-gray-800 z-20 menu p-2 bg-base-100 w-52"
             >
               <li>
                 <a onClick={deleteNotifications}>Delete all notifications</a>

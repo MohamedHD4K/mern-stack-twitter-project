@@ -9,7 +9,7 @@ export const getUserProfile = async (req, res) => {
         const { username } = req.params
 
         const user = await User.findOne({ username }).select("-password")
-        if (!user) res.status(404).json({ error: "User not found" })
+        if (!user) return res.status(404).json({ error: "User not found" })
 
         res.status(200).json({ user })
     } catch (error) {
@@ -95,10 +95,10 @@ export const updateUserProfile = async (req, res) => {
     try {
 
         let user = await User.findById(userId)
-        if (!user) res.status(404).json({ error: "User not found" })
+        if (!user) return res.status(404).json({ error: "User not found" })
 
         if (!currentPassword && newPassword || currentPassword && !newPassword) {
-            res.status(400).json({ error: "Please provide both current password and new password" })
+            return res.status(400).json({ error: "Please provide both current password and new password" })
         }
 
         if (currentPassword && newPassword) {

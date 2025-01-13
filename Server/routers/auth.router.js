@@ -1,12 +1,12 @@
 import express from 'express'
-import { login, singin, logout, getMe } from '../controllers/auth.controller.js'
+import { login, signin, logout, getMe } from '../controllers/auth.controller.js'
 import { protectRoute } from '../middleware/protectRoute.js'
 
 const router = express.Router()
 
 router.get("/me", protectRoute, getMe)
 
-router.post("/singin", singin)
+router.post("/signup", signin)
 
 router.post("/login", login)
 

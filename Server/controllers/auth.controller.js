@@ -2,7 +2,7 @@ import User from "../models/user.model.js";
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 import bcryptjs from "bcryptjs";
 
-export const singin = async (req, res) => {
+export const signin = async (req, res) => {
   try {
     const { username, fullName, password, email } = req.body;
 
@@ -70,7 +70,7 @@ export const login = async (req, res) => {
     const isPasswordCorrect = bcryptjs.compare(password, user?.password || "")
 
     if (!isPasswordCorrect || !user) {
-      res.status(400).json({ error: "Invalid username or password" })
+      return res.status(400).json({ error: "Invalid username or password" })
     }
 
     generateTokenAndSetCookie(user._id, res);

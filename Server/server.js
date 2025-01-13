@@ -3,6 +3,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary"
+import cors from "cors"
 
 // Routers
 import authRouter from "./routers/auth.router.js";
@@ -27,6 +28,7 @@ const PORT = process.env.SERVER_PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(cors())
 
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);

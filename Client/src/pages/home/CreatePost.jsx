@@ -3,7 +3,7 @@ import { BsEmojiSmileFill } from "react-icons/bs";
 import { useRef, useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 
-const CreatePost = () => {
+const CreatePost = ({ data }) => {
   const [text, setText] = useState("");
   const [img, setImg] = useState(null);
 
@@ -11,10 +11,6 @@ const CreatePost = () => {
 
   const isPending = false;
   const isError = false;
-
-  const data = {
-    profileImg: "/avatars/boy1.png",
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -38,7 +34,7 @@ const CreatePost = () => {
         <div className="flex items-start px-4 pt-2 gap-3">
           <div className="avatar">
             <div className="w-8 rounded-full">
-              <img src={data.profileImg || "/avatar-placeholder.png"} />
+              <img src={data.profileImg || "../../posts/avatar.png"} />
             </div>
           </div>
           <textarea

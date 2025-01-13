@@ -3,7 +3,7 @@ import { IoSearch } from "react-icons/io5";
 const Search = () => {
   return (
     <div
-      className="flex items-center border gap-3 border-gray-700 rounded-full mb-3 p-3
+      className="flex items-center border gap-3 m-1 mx-4 border-gray-700 rounded-full p-3
      focus-within:outline focus-within:outline-blue-600 focus-within:outline-2"
     >
       <IoSearch className="text-gray-700 text-lg" />

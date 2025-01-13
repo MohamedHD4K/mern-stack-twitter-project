@@ -11,8 +11,11 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
+import { useQuery } from "@tanstack/react-query";
 
 const ProfilePage = () => {
+  const { data: user } = useQuery({ queryKey: ["authUser"] });
+
   const [coverImg, setCoverImg] = useState(null);
   const [profileImg, setProfileImg] = useState(null);
   const [feedType, setFeedType] = useState("posts");
@@ -22,18 +25,6 @@ const ProfilePage = () => {
 
   const isLoading = false;
   const isMyProfile = true;
-
-  const user = {
-    _id: "1",
-    fullName: "John Doe",
-    username: "johndoe",
-    profileImg: "/avatars/boy2.png",
-    coverImg: "/cover.png",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    link: "https://youtube.com/@asaprogrammer_",
-    following: ["1", "2", "3"],
-    followers: ["1", "2", "3"],
-  };
 
   const handleImgChange = (e, state) => {
     const file = e.target.files[0];
@@ -48,7 +39,7 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    document.title = "X Clone /" + user.username;
+    document.title = "X Clone \\ " + user.username;
   }, [user.username]);
 
   return (
@@ -62,7 +53,7 @@ const ProfilePage = () => {
         <div className="flex flex-col">
           {!isLoading && user && (
             <>
-              <div className="flex gap-10 px-4 py-2 items-center">
+              <div className="flex sticky top-0 z-10 bg-black/75 backdrop-blur-lg gap-10 px-4 py-2 items-center">
                 <Link to="/">
                   <FaArrowLeft className="w-4 h-4" />
                 </Link>
@@ -76,13 +67,14 @@ const ProfilePage = () => {
               {/* COVER IMG */}
               <div className="relative group/cover">
                 <img
-                  src={coverImg || user?.coverImg || "cover.png"}
+                  src={coverImg || user?.coverImg || "../../posts/cover.png"}
                   className="h-52 w-full object-cover"
                   alt="cover image"
                 />
                 {isMyProfile && (
                   <div
-                    className="absolute top-2 right-2 rounded-full p-2 bg-gray-800 bg-opacity-75 cursor-pointer opacity-0 group-hover/cover:opacity-100 transition duration-200"
+                    className="absolute top-2 right-2 rounded-full p-2 bg-gray-800 bg-opacity-75 cursor-pointer opacity-0 
+                    group-hover/cover:opacity-100 transition duration-200"
                     onClick={() => coverImgRef.current.click()}
                   >
                     <MdEdit className="w-5 h-5 text-white" />
@@ -105,12 +97,10 @@ const ProfilePage = () => {
                 <div className="avatar absolute outline outline-3 outline-black rounded-full -bottom-16 left-4">
                   <div className="w-32 rounded-full relative group/avatar">
                     <img
-                      src={
-                        profileImg ||
-                        user?.profileImg ||
-                        "/avatar-placeholder.png"
-                      }
+                      src={profileImg || user?.profileImg || "../../posts/avatar.png"}
+                      alt="avatar"
                     />
+
                     <div className="absolute top-5 right-3 p-1 bg-primary rounded-full group-hover/avatar:opacity-100 opacity-0 cursor-pointer">
                       {isMyProfile && (
                         <MdEdit
