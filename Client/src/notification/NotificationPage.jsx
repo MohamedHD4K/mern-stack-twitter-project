@@ -1,109 +1,75 @@
 import { Link } from "react-router-dom";
 import LoadingSpinner from "../components/common/LoadingSpinner";
-
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
 import { useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
 
 const NotificationPage = () => {
-  const isLoading = false;
-  const notifications = [
-    {
-      _id: "1",
-      from: {
-        _id: "1",
-        username: "johndoe",
-        profileImg: "/avatars/boy2.png",
-      },
-      type: "follow",
-    },
-    {
-      _id: "2",
-      from: {
-        _id: "2",
-        username: "janedoe",
-        profileImg: "/avatars/girl1.png",
-      },
-      type: "like",
-    },
-    {
-      _id: "2",
-      from: {
-        _id: "2",
-        username: "janedoe",
-        profileImg: "/avatars/girl1.png",
-      },
-      type: "like",
-    },
-    {
-      _id: "2",
-      from: {
-        _id: "2",
-        username: "janedoe",
-        profileImg: "/avatars/girl1.png",
-      },
-      type: "like",
-    },
-    {
-      _id: "2",
-      from: {
-        _id: "2",
-        username: "janedoe",
-        profileImg: "/avatars/girl1.png",
-      },
-      type: "like",
-    },
-    {
-      _id: "2",
-      from: {
-        _id: "2",
-        username: "janedoe",
-        profileImg: "/avatars/girl1.png",
-      },
-      type: "like",
-    },
-    {
-      _id: "2",
-      from: {
-        _id: "2",
-        username: "janedoe",
-        profileImg: "/avatars/girl1.png",
-      },
-      type: "like",
-    },
+  const queryClient = useQueryClient();
 
-    {
-      _id: "2",
-      from: {
-        _id: "2",
-        username: "janedoe",
-        profileImg: "/avatars/girl1.png",
-      },
-      type: "like",
-    },
-  ];
+  const { data: notifications, isLoading } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/notification/");
+        const data = await res.json();
 
-  const deleteNotifications = () => {
-    alert("All notifications deleted");
-  };
+        if (!res.ok) throw new Error(data.message || "Something went wrong");
+
+        return data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+  });
+
+  const { mutate: deleteNotification, isPending } = useMutation({
+    mutationFn: async () => {
+      try {
+        const res = await fetch("/api/notification/", { method: "DELETE" });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message || "Something went wrong");
+
+        return data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    onSuccess: () => {
+      toast.success("Notifications deleted");
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteNotifications = () => deleteNotification();
 
   useEffect(() => {
-    document.title = "X Clone \\ Notifications"
+    document.title = "X Clone \\ Notifications";
   }, []);
 
   return (
     <>
-      <div className="flex-[4_4_0] border-r border-gray-700  min-h-screen">
+      <div className="max-w-2xl flex-[4_4_0] border-r border-gray-700 min-h-screen">
         <div className="flex justify-between sticky top-0 z-20 backdrop-blur-lg  items-center p-4 border-b border-gray-700">
           <p className="font-bold">Notifications</p>
           <div className="dropdown ">
             <div tabIndex={0} role="button" className="m-1">
-              <IoSettingsOutline className="w-4" />
+              {isPending ? (
+                <LoadingSpinner />
+              ) : (
+                <IoSettingsOutline className="w-4" />
+              )}
             </div>
             <ul
               tabIndex={0}
-              style={{boxShadow:"0 0 10px #999999a9"}}
+              style={{ boxShadow: "0 0 10px #999999a9" }}
               className="dropdown-content border rounded border-gray-800 z-20 menu p-2 bg-base-100 w-52"
             >
               <li>
@@ -134,8 +100,7 @@ const NotificationPage = () => {
                   <div className="w-8 rounded-full">
                     <img
                       src={
-                        notification.from.profileImg ||
-                        "/avatar-placeholder.png"
+                        notification.from.profileImg || "../posts/avatar.png"
                       }
                     />
                   </div>
@@ -143,7 +108,7 @@ const NotificationPage = () => {
                 <div className="flex gap-1">
                   <span className="font-bold">
                     @{notification.from.username}
-                  </span>{" "}
+                  </span>
                   {notification.type === "follow"
                     ? "followed you"
                     : "liked your post"}

@@ -12,7 +12,7 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="flex-[4_4_0] mr-auto border-r border-gray-700 min-h-screen">
+    <div className="max-w-2xl flex-[4_4_0] mr-auto border-r border-gray-700 min-h-screen">
       {/* Header */}
       <div className="flex sticky top-0 z-10 backdrop-blur-lg border-b border-gray-700">
         <div

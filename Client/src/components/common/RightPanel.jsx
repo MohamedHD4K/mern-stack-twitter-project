@@ -1,10 +1,30 @@
 import { Link } from "react-router-dom";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton";
-import { USERS_FOR_RIGHT_PANEL } from "../../utils/db/dummy";
 import Search from "./Search";
+import { useQuery } from "@tanstack/react-query";
+import useFollow from "../../hooks/useFollow";
+import LoadingSpinner from "./LoadingSpinner";
 
 const RightPanel = () => {
-  const isLoading = false;
+  const { follow, isPending } = useFollow();
+
+  const { data: USERS_FOR_RIGHT_PANEL, isLoading } = useQuery({
+    queryKey: ["suggestedUsers"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/users/suggested");
+        const data = await res.json();
+
+        if (!res.ok) throw new Error("Something went wrong");
+
+        return data;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+  });
+
+  if(USERS_FOR_RIGHT_PANEL?.length === 0) return
 
   return (
     <div className="flex flex-col">
@@ -17,12 +37,13 @@ const RightPanel = () => {
           <div className="flex flex-col">
             {/* item */}
             {isLoading && (
-              <>
+              <div className="flex flex-col items-center transition-all justify-between">
                 <RightPanelSkeleton />
                 <RightPanelSkeleton />
                 <RightPanelSkeleton />
                 <RightPanelSkeleton />
-              </>
+                <RightPanelSkeleton />
+              </div>
             )}
             {!isLoading &&
               USERS_FOR_RIGHT_PANEL?.map((user) => (
@@ -35,7 +56,7 @@ const RightPanel = () => {
                     <div className="avatar">
                       <div className="w-8 rounded-full">
                         <img
-                          src={user.profileImg || "/avatar-placeholder.png"}
+                          src={user.profileImg || "../posts/avatar.png"}
                         />
                       </div>
                     </div>
@@ -51,9 +72,9 @@ const RightPanel = () => {
                   <div>
                     <button
                       className="btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm"
-                      onClick={(e) => e.preventDefault()}
+                      onClick={() => follow(user._id)}
                     >
-                      Follow
+                      {isPending ? <LoadingSpinner size="xs mx-3"/> : "Follow"}
                     </button>
                   </div>
                 </Link>
@@ -67,4 +88,5 @@ const RightPanel = () => {
     </div>
   );
 };
+
 export default RightPanel;

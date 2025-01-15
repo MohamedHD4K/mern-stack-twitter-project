@@ -6,33 +6,41 @@ import Notification from "../models/notification.model.js"
 
 export const createPost = async (req, res) => {
     try {
-        const { text } = req.body
-        let { img } = req.body
-        const userId = req.user._id
+        const { text } = req.body;
+        let { img } = req.body;
 
-        const user = await User.findById(userId)
-        if (!user) return res.status(404).json({ error: "User not found " })
+        if (!req.user) return res.status(401).json({ error: "Unauthorized" });
 
-        if (!img && !text) return res.status(400).json({ error: "Post must have text or image" })
+        const userId = req.user._id;
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        if (!img && !text) return res.status(400).json({ error: "Post must have text or image" });
 
         if (img) {
-            const uploadedResponse = cloudinary.uploader.upload(img)
-            img = uploadedResponse.secure_url
+            try {
+                const uploadedResponse = await cloudinary.uploader.upload(img);
+                img = uploadedResponse.secure_url;
+            } catch (err) {
+                console.error("Cloudinary Upload Error:", err);
+                return res.status(500).json({ error: "Image upload failed. Please try again later." });
+            }
         }
 
         const newPost = new Post({
             user: userId,
             text,
             img
-        })
+        });
 
-        await newPost.save()
-        res.status(201).json({ message: "Post Created", newPost })
+        await newPost.save();
+        res.status(201).json({ message: "Post Created", newPost });
     } catch (error) {
-        console.log("Error in post create post controller", error.message);
+        console.error("Error in createPost controller:", error.message);
         return res.status(500).json({ error: "Internal server error" });
     }
-}
+};
 
 export const likeUnlikePost = async (req, res) => {
     try {
@@ -47,7 +55,9 @@ export const likeUnlikePost = async (req, res) => {
         if (userLikedPost) {
             await Post.updateOne({ _id: postId }, { $pull: { likes: userId } })
             await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } })
-            res.status(200).json({ message: "Post unliked successfully" })
+
+            const updatedLike = post.likes.filter((id) => id.toString() !== userId.toString())
+            res.status(200).json(updatedLike)
         } else {
             post.likes.push(userId)
             await User.updateOne({ _id: userId }, { $push: { likedPosts: postId } })
@@ -60,7 +70,8 @@ export const likeUnlikePost = async (req, res) => {
             })
             await newNotification.save()
 
-            res.status(200).json({ message: "Post liked successfully" })
+            const updatedLike = post.likes;
+            res.status(200).json(updatedLike)
         }
     } catch (error) {
         console.log("Error in post like or unlike post controller", error.message);
@@ -96,7 +107,7 @@ export const deletePost = async (req, res) => {
     try {
         const post = await Post.findById(req.params.id)
 
-        if (!post) return res.status(404).josn({ error: "Post not found" })
+        if (!post) return res.status(404).json({ error: "Post not found" })
 
         if (post.user.toString() !== req.user._id.toString()) {
             return res.status(401).json({ error: "You are not authorized to delete this post" })
@@ -107,8 +118,10 @@ export const deletePost = async (req, res) => {
             await cloudinary.uploader.destroy(imgId)
         }
 
-        await Post.findOneAndDelete(req.params.id)
-        res.status(200).json({ message: "Post deleted successfully" })
+        const deletedPost = await Post.findByIdAndDelete(req.params.id);
+        if (!deletedPost) return res.status(404).json({ error: "Post not found" });
+
+        res.status(200).json({ message: `Post deleted ${req.params.id}` })
     } catch (error) {
         console.log("Error in delete post controller", error.message);
         return res.status(500).json({ error: "Internal server error" });
@@ -169,7 +182,7 @@ export const getFollowingPosts = async (req, res) => {
         const user = await User.findById(userId)
         if (!user) return res.status(404).json({ error: "User not found" })
 
-        const followingPosts = await Post.find({ following: user.following })
+        const followingPosts = await Post.find({ user: { $in: user.following } })
             .sort({ createdAt: -1 })
             .populate({
                 path: "user",

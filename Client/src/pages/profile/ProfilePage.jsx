@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-
+import { Link, useParams } from "react-router-dom";
 import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
 import EditProfileModal from "./EditProfileModal";
-
 import { POSTS } from "../../utils/db/dummy";
-
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
@@ -14,17 +11,37 @@ import { MdEdit } from "react-icons/md";
 import { useQuery } from "@tanstack/react-query";
 
 const ProfilePage = () => {
-  const { data: user } = useQuery({ queryKey: ["authUser"] });
+  const { data: authUser } = useQuery({ queryKey: ["authUser"] });
 
+  const { username } = useParams();
+
+  const {
+    data: user,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: async () => {
+      try {
+        const res = await fetch(`/api/users/profile/${username}`);
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Something went wrong");
+        }
+        return data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+  });
   const [coverImg, setCoverImg] = useState(null);
   const [profileImg, setProfileImg] = useState(null);
   const [feedType, setFeedType] = useState("posts");
 
   const coverImgRef = useRef(null);
   const profileImgRef = useRef(null);
-
-  const isLoading = false;
-  const isMyProfile = true;
+  const isMyProfile = authUser._id === user?._id;
 
   const handleImgChange = (e, state) => {
     const file = e.target.files[0];
@@ -39,15 +56,15 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    document.title = "X Clone \\ " + user.username;
-  }, [user.username]);
+    refetch();
+  }, [refetch]);
 
   return (
     <>
       <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
         {/* HEADER */}
-        {isLoading && <ProfileHeaderSkeleton />}
-        {!isLoading && !user && (
+        {isLoading && isRefetching && <ProfileHeaderSkeleton />}
+        {!isLoading && isRefetching && !user && (
           <p className="text-center text-lg mt-4">User not found</p>
         )}
         <div className="flex flex-col">
@@ -97,7 +114,11 @@ const ProfilePage = () => {
                 <div className="avatar absolute outline outline-3 outline-black rounded-full -bottom-16 left-4">
                   <div className="w-32 rounded-full relative group/avatar">
                     <img
-                      src={profileImg || user?.profileImg || "../../posts/avatar.png"}
+                      src={
+                        profileImg ||
+                        user?.profileImg ||
+                        "../../posts/avatar.png"
+                      }
                       alt="avatar"
                     />
 
@@ -167,13 +188,13 @@ const ProfilePage = () => {
                 <div className="flex gap-2">
                   <div className="flex gap-1 items-center">
                     <span className="font-bold text-xs">
-                      {user?.following.length}
+                      {user?.following?.length ?? 0}
                     </span>
                     <span className="text-slate-500 text-xs">Following</span>
                   </div>
                   <div className="flex gap-1 items-center">
                     <span className="font-bold text-xs">
-                      {user?.followers.length}
+                      {user?.followers?.length ?? 0}
                     </span>
                     <span className="text-slate-500 text-xs">Followers</span>
                   </div>
