@@ -9,6 +9,7 @@ import { BsThreeDots } from "react-icons/bs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
+import { formatPostDate } from "../../utils/date";
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
@@ -103,16 +104,11 @@ const Post = ({ post }) => {
     },
   });
 
-  const date = new Date(post.createdAt);
-  const time = date.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
+  const date = formatPostDate(post?.createdAt);
   const postOwner = post.user;
   const isLiked = post.likes.includes(authUser._id);
   const isMyPost = post.user._id === authUser._id;
-  const formattedDate = time;
+  const formattedDate = date;
 
   const handleDeletePost = () => {
     deletePost();

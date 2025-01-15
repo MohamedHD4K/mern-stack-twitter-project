@@ -9,10 +9,10 @@ import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { useQuery } from "@tanstack/react-query";
+import { formatMemberSinceDate } from "../../utils/date/index";
 
 const ProfilePage = () => {
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
-
   const { username } = useParams();
 
   const {
@@ -26,15 +26,18 @@ const ProfilePage = () => {
       try {
         const res = await fetch(`/api/users/profile/${username}`);
         const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || "Something went wrong");
-        }
+
+        if (data.error) return null;
+        if (!res.ok) throw new Error(data.error || "Something went wrong");
+
         return data;
       } catch (error) {
+        console.log(error);
         throw new Error(error);
       }
     },
   });
+
   const [coverImg, setCoverImg] = useState(null);
   const [profileImg, setProfileImg] = useState(null);
   const [feedType, setFeedType] = useState("posts");
@@ -42,6 +45,7 @@ const ProfilePage = () => {
   const coverImgRef = useRef(null);
   const profileImgRef = useRef(null);
   const isMyProfile = authUser._id === user?._id;
+  const date = formatMemberSinceDate(user?.createdAt);
 
   const handleImgChange = (e, state) => {
     const file = e.target.files[0];
@@ -180,9 +184,7 @@ const ProfilePage = () => {
                   )}
                   <div className="flex gap-2 items-center">
                     <IoCalendarOutline className="w-4 h-4 text-slate-500" />
-                    <span className="text-sm text-slate-500">
-                      Joined July 2021
-                    </span>
+                    <span className="text-sm text-slate-500">{date}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -223,7 +225,7 @@ const ProfilePage = () => {
             </>
           )}
 
-          <Posts />
+          <Posts feedType={feedType} username={user?.username} id={user?._id} />
         </div>
       </div>
     </>

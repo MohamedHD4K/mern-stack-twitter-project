@@ -41,7 +41,7 @@ const HomePage = () => {
       <CreatePost data={data} />
 
       {/* POSTS */}
-      <Posts feedType={feedType}/>
+      <Posts feedType={feedType} username={data.username} id={data._id} />
     </div>
   );
 };
