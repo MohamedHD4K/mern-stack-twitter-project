@@ -7,8 +7,9 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "node Server/server.js",
-    "dev": "nodemon Server/server.js"
+    "start": "NODE_ENV=development node Server/server.js",
+    "dev": "NODE_ENV=production nodemon Server/server.js",
+    "build" : "npm install && npm install --prefix Client && npm run build --prefix Client"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

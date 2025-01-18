@@ -1,4 +1,5 @@
 // Packages
+import path from "path"
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -24,8 +25,9 @@ cloudinary.config({
 
 const app = express();
 const PORT = process.env.SERVER_PORT || 3000;
+const __dirname = path.resolve()
 
-app.use(express.json({limit:"5mb"})); // DoS Attack
+app.use(express.json({ limit: "5mb" })); // DoS Attack
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors())
@@ -34,6 +36,14 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/notification", notificationRouter);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/Client/dist")))
+
+  app.get("*" , (req , res) =>{
+    res.sendFile(path.resolve(__dirname , "Client" , "dist" , "index.html"))
+  })
+}
 
 app.listen(PORT, () => {
   console.log(`http://localhost:${PORT}`);
