@@ -116,16 +116,16 @@ export const updateUserProfile = async (req, res) => {
             if (user.profileImg) {
                 await cloudinary.uploader.destroy(user.profileImg.split("/").pop().split(".")[0])
             }
-            const uploadedResponse = await cloudinary.uploader(profileImg)
-            profileImg = uploadedResponse.secure_name
+            const uploadedResponse = await cloudinary.uploader.upload(profileImg)
+            profileImg = uploadedResponse.secure_url
         }
 
         if (coverImg) {
             if (user.coverImg) {
                 await cloudinary.uploader.destroy(user.coverImg.split("/").pop().split(".")[0])
             }
-            const uploadedResponse = await cloudinary.uploader(coverImg)
-            coverImg = uploadedResponse.secure_name;
+            const uploadedResponse = await cloudinary.uploader.upload(coverImg)
+            coverImg = uploadedResponse.secure_url;
         }
 
         user.fullName = fullName || user.fullName

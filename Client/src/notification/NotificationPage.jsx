@@ -60,9 +60,9 @@ const NotificationPage = () => {
         <div className="flex justify-between sticky top-0 z-20 backdrop-blur-lg  items-center p-4 border-b border-gray-700">
           <p className="font-bold">Notifications</p>
           <div className="dropdown ">
-            <div tabIndex={0} role="button" className="m-1">
+            <div tabIndex={0} role="button">
               {isPending ? (
-                <LoadingSpinner />
+                <LoadingSpinner size="xs" />
               ) : (
                 <IoSettingsOutline className="w-4" />
               )}
